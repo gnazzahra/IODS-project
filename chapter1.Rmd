@@ -1,13 +1,7 @@
+**Hello**
 
-# About the project
+I am a prospective student of UH's *COS: Social Data Science*
+I am very new in this subject and I hope to learn many things that would help me in my future study
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
-
-```{r}
-# This is a so-called "R chunk" where you can write R code.
-
-date()
-
-```
-The text continues here.
+Here's my Github repository: https://github.com/gnazzahra/IODS-project
 

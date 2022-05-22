@@ -389,36 +389,55 @@ pre code {
 <ul>
 <li><a href="#introduction-to-open-data-science---course-project">Introduction
 to Open Data Science - Course Project</a></li>
-<li><a href="#insert-chapter-2-title-here">Insert chapter 2 title
-here</a></li>
+<li><a href="#regression-and-model-validation">2: Regression and Model
+Validation</a></li>
 </ul>
 </div>
 
 <hr />
 <div id="introduction-to-open-data-science---course-project" class="section level1">
 <h1>Introduction to Open Data Science - Course Project</h1>
-<p><strong>Hello</strong></p>
-<p>I am a prospective student of UH’s <em>COS: Social Data
+<p>#<strong>Hello</strong></p>
+<ul>
+<li>I am a <sup>prospective</sup> student of UH’s <em>COS: Social Data
 Science</em><br />
-I am very new in this subject and I hope to learn many things that would
-help me in my future study</p>
-<p>Here’s my Github repository: <a href="https://github.com/gnazzahra/IODS-project" class="uri">https://github.com/gnazzahra/IODS-project</a></p>
+</li>
+<li>I am very new in this subject and I hope to learn many things that
+would help me in my future study</li>
+</ul>
+<p><a href="https://github.com/gnazzahra/IODS-project">Here</a>’s my
+Github repository: <a href="https://github.com/gnazzahra/IODS-project" class="uri">https://github.com/gnazzahra/IODS-project</a></p>
 <hr />
 </div>
-<div id="insert-chapter-2-title-here" class="section level1">
-<h1>Insert chapter 2 title here</h1>
-<p><em>Describe the work you have done this week and summarize your
-learning.</em></p>
-<ul>
-<li>Describe your work and results clearly.</li>
-<li>Assume the reader has an introductory course level understanding of
-writing and reading R code as well as statistical methods.</li>
-<li>Assume the reader has no previous knowledge of your data or the more
-advanced methods you are using.</li>
-</ul>
+<div id="regression-and-model-validation" class="section level1">
+<h1>2: Regression and Model Validation</h1>
+<p><em>This week I am learning about data wrangling and linear
+regression. For the exercise, I have created the learning2014.txt file
+by doing data wrangling to the full learning2014 data. As the
+continuation of that exercise, now I will perform regression analysis to
+the wrangled data and interpret it.</em></p>
+<pre class="r"><code>#reading the data
+data &lt;- read.table(&quot;http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt&quot;, sep=&quot;,&quot;, header=TRUE)
+dim(data)</code></pre>
+<pre><code>## [1] 166   7</code></pre>
+<pre class="r"><code>str(data)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    166 obs. of  7 variables:
+##  $ gender  : chr  &quot;F&quot; &quot;M&quot; &quot;F&quot; &quot;M&quot; ...
+##  $ age     : int  53 55 49 53 49 38 50 37 37 42 ...
+##  $ attitude: num  3.7 3.1 2.5 3.5 3.7 3.8 3.5 2.9 3.8 2.1 ...
+##  $ deep    : num  3.58 2.92 3.5 3.5 3.67 ...
+##  $ stra    : num  3.38 2.75 3.62 3.12 3.62 ...
+##  $ surf    : num  2.58 3.17 2.25 2.25 2.83 ...
+##  $ points  : int  25 12 24 10 22 21 21 31 24 26 ...</code></pre>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Thu May 12 22:35:36 2022&quot;</code></pre>
-<p>Here we go again…</p>
+<pre><code>## [1] &quot;Sat May 21 23:50:55 2022&quot;</code></pre>
+<p>Here, we can see that the data has 166 observations and 7 variables,
+which are gender, age, attitude, deep, stra, surf, and points. From the
+data structure, we can observe that the variables attitude, deep, stra,
+and surf are numeric data, which contain decimal numbers. On the other
+hand, age and points are integer data, which contain only whole numbers.
+Meanwhile, gender is a character data with two values, “F” for females
+and “M” for males.</p>
 <hr />
 <p>(more chapters to be added similarly as we proceed with the
 course!)</p>

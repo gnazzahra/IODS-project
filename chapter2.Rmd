@@ -1,6 +1,5 @@
 # 2: Regression and Model Validation
 
-Course diary: https://gnazzahra.github.io/IODS-project/
 ```{r}
 date()
 ```

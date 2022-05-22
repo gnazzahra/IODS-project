@@ -1,13 +1,67 @@
-# Insert chapter 2 title here
+# 2: Regression and Model Validation
 
-*Describe the work you have done this week and summarize your learning.*
-
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
-
+Course diary: https://gnazzahra.github.io/IODS-project/
 ```{r}
 date()
 ```
+*This week I am learning about data wrangling and linear regression. For the exercise, I have created the learning2014.txt file by doing data wrangling to the full learning2014 data. As the continuation of that exercise, now I will perform regression analysis to the wrangled data and interpret it.*
 
-Here we go again...
+
+```{r}
+#reading the data
+learning2014 <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt", sep=",", header=TRUE)
+dim(learning2014)
+str(learning2014)
+```
+
+- Here, we can see that our data was collected from 166 students with 7 variables, which are gender, age, attitude, deep, stra, surf, and points. 
+- The variable "gender" is a character data with two values which describes the student's gender, "F" for females and "M" for males.
+- The variable "age" is an integer data describing the student's age.
+- The variable "attitude" is a numerical data describing the student's attitude towards statistics.
+- Variables "deep", "stra", and "surf" each measures the student's deep, strategic, and surface approach to learning.
+- Variable "points" shows us the student's exam score
+
+```{r}
+#accessing the libraries
+library(ggplot2)
+library(GGally)
+
+#drawing scatter plot matrix
+p <- ggpairs(learning2014, mapping = aes(col=gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+
+- The data from female students are represented in pink while the data from male students are represented in green.
+- The frequency data shows us that we have more data from female students.
+- The highly skewed "age" graph shows us that most of our respondents are very young although we have a few older respondents.
+- From the correlation score, we can see that the student's exam score has the highest correlation to the attitude score. The correlation is positive, which means that students with higher attitude score tends to have higher exam score. 
+- The second highest correlation is between the student's exam score and the strategic learning measurement. This correlation is also positive, which means that students who measures higher on strategic learning tends to have higher exam score.
+- The third highest correlation is between the student's exam score and the surface learning measurement. This time, the correlation is negative, which means that students who measures higher on surface learning tends to have lower exam score.
+
+```{r}
+#linear model with three variables as explanatory variables 
+my_model <- lm(points ~ attitude + stra +surf, data = learning2014)
+summary(my_model)
+```
+- The Rsquared value is 0.2074; the three explanatory variables together accounts for 20.74% of the variation in the student's exam score.
+- The omnibus F statistic has a very low associated p-value, which means that there is a strong evidence that not all three coefficients are zero.
+- The p-values of the explanatory variables imply that attitude is strongly associated with the student's exam scores, while strategic and surface learning measurements seem to not associated with the student's exam score. Now, we will fit the model with only the significant explanatory variable.
+
+```{r}
+#removing variables that are not statistically significant 
+my_model <- lm(points ~ attitude, data = learning2014)
+summary(my_model)
+```
+- The Rsquared value is 0.1906, only a little lower than the first model. Attitude alone accounts for 19.06% of the variation in the student's exam score. 
+- The regression coefficient of the variable "attitude" changed a little compared to the previous model, but remain highly significant.
+- The regression coefficient of the variable "attitude" is 3.5255, which means that for every 1 point increase of the variable "attitude", there is 3.5255 increase of the variable "points".
+- The fitted model becomes: points = 11.6372 + 3.5255 * attitude 
+
+```{r}
+#drawing diagnostic plot
+plot(my_model, which=c(1,2,5))
+```
+
+- The residual vs fitted plot seems to confirm that the fitted model is appropriate. The variability of the residuals does not seem to significantly increase nor decrease with the size of the fitted values.
+- The normal Q-Q plot shows little evidence of departure from linearity, so there is not enough evidence of a departure from normality
+- The residual vs leverage plot shows that there are no influential points in the data,  as no observation lies outside of the Cook's distance. This implies that the data does not have any outliers that would impact the model's coefficients greatly.

@@ -1,0 +1,285 @@
+# 3: Logistic Regression
+```{r}
+date()
+```
+*This week I am learning about logistic regression. For the exercise, I have created the alc.csv file by combining and mutating the original UCI Student Performance Data. Now I will do an analysis to the modified data.*
+
+
+```{r}
+#reading the data
+alc <- read.table("https://github.com/rsund/IODS-project/raw/master/data/alc.csv", sep=",", header=TRUE)
+dim(alc)
+#printing out the names of the variables
+str(alc)
+```
+
+- Here, we have a data collected from 370 students with 51 variables. 
+- This data describes student achievement in secondary education and includes the student's grades, demographic, social, and school related information.
+- G3 is the final year grade of the student, while G2 and G1 are respectively the 1st and 2nd period grades.
+- We also have alc_use numeric variable, that shows the average alcohol consumption of the student.
+- The variable high_use is a logical variable that shows if the student's alcohol consumption is high.
+
+*Choose 4 variables and create personal hypothesis:*
+- goout: students who go out more often would have higher alcohol consumption
+- sex: males tend to have higher alcohol consumption
+- absences: students with higher absences would have higher alcohol consumption
+- studytime: students who spends more time studying would have lower alcohol consumption
+
+
+```{r}
+#exploring the distribution of the chosen variables
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+#*alcohol use and go out variable*
+#cross-tabulation
+alc %>% group_by(goout) %>% summarise(count = n(), mean_alc = mean(alc_use))
+#bar plot
+b1 <- ggplot(alc, aes(x = goout, fill=high_use)) + ggtitle("Going out and high alcohol use.")
+b1 <- b1 + geom_bar() + labs(x = "Going out", y = "Count")
+b1
+#box plot
+g1 <- ggplot(alc, aes(x=goout, y = alc_use, group=goout)) + ggtitle("Going out and alcohol use.")
+g1 <- g1 + geom_boxplot() + labs(x = "Going out", y ="Alcohol use")
+g1
+```
+
+- The cross tabulation, bar plot, and box plot all seems to indicate that students who go out more tend to have higher alcohol consumption
+- In the cross tabulation, we can see that the mean of the student's alcohol consumption is getting higher as the students go out more often. 
+- The bar plot shows that the proportion of students with high alcohol use generally tends to get higher as the student goes out more often.
+- The box plot shows that the median of the student's alcohol consumption is getting higher as the students go out more often. The range of alcohol use also gets higher.
+
+```{r}
+#*alcohol use and sex variable*
+#cross-tabulation
+alc %>% group_by(sex) %>% summarise(count = n(), mean_alc = mean(alc_use))
+#bar plot
+b1 <- ggplot(alc, aes(x = sex, fill=high_use)) + ggtitle("Sex and high alcohol use.")
+b1 <- b1 + geom_bar() + labs(x = "Sex", y = "Count")
+b1
+#box plot
+g1 <- ggplot(alc, aes(x=sex, y = alc_use, group=sex)) + ggtitle("Sex and alcohol use.")
+g1 <- g1 + geom_boxplot() + labs(x = "Sex", y ="Alcohol use")
+g1
+```
+
+- The cross tabulation, bar plot, and box plot all seem to indicate that male students have higher alcohol consumption.
+- In the cross tabulation we see that the average score of male student's alcohol consumption is 2.19, higher than female student's alcohol consumption score which is 1.62
+- The bar plot shows that male students has more students with high use of alcohol, while female students have more students with low use of alcohol.
+- The box plot shows that male student's median alcohol consumption is higher than female student's. The range of alcohol consumption is also wider in male students, which means that the data of males students is more diverse.
+
+
+```{r}
+#*alcohol use and absences variable*
+#cross-tabulation
+alc %>% group_by(high_use) %>% summarise(count = n(), mean_absences = mean(absences))
+#bar plot
+b1 <- ggplot(alc, aes(x = absences, fill=high_use)) + ggtitle("Absences and high alcohol use.")
+b1 <- b1 + geom_bar() + labs(x = "Absences", y = "Count")
+b1
+#box plot
+g1 <- ggplot(alc, aes(x=high_use, y = absences, group=high_use)) + ggtitle("Absences and high alcohol use.")
+g1 <- g1 + geom_boxplot() + labs(x = "High alcohol use", y ="Absences")
+g1
+```
+- Cross tabulation, bar plot, and box plot all seem to indicate that student with high alcohol consumption tend to have higher absences.
+- In the cross tabulation, we can see that students with high alcohol consumption on average has 6-7 absences, while students with low alcohol consuption has 3-4 absences on average.
+- Bar plot also shows similar conlusion, where the proportion of students with high alcohol consumption gets higher in groups of students with higher absences.
+- The box plot shows that the median of absences are higher in students with high alcohol consumption. The data is also more diverse in the high alcohol consumption group.
+
+
+```{r}
+#*alcohol use and studytime variable*
+#cross-tabulation
+alc %>% group_by(studytime) %>% summarise(count = n(), mean_alc = mean(alc_use))
+#bar plot
+b1 <- ggplot(alc, aes(x = studytime, fill=high_use)) + ggtitle("Study time and high alcohol use.")
+b1 <- b1 + geom_bar() + labs(x = "Study time", y = "Count")
+b1
+#box plot
+g1 <- ggplot(alc, aes(x=studytime, y = alc_use, group=studytime)) + ggtitle("Study time and alcohol use.")
+g1 <- g1 + geom_boxplot() + labs(x = "Study time", y ="Alcohol use")
+g1
+```
+
+- The cross tabulation, bar plot, and box plot all seem to indicate that students who spend more time studying tend to have less alcohol consumption
+- In the cross tabulation, we can see that in general the mean alcohol consumption gets is in groups with higher study time. However, although students who spends more than 10 hours/week of studying has on average has a little higher alcohol consumption compared to students who spends 5-10 hours studying each week.
+- The bar plot shows that the proportion of students with high alcohol consumption is generally lower in groups of students with higher study time
+- The box plot shows that the median of alcohol consumption gets lower as students spend more time studying. 
+
+
+```{r}
+#running logistic regression with the chosen variables
+m <- glm(high_use ~ goout + sex + absences + studytime, data=alc, family="binomial")
+summary(m)
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI <- exp(confint(m))
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+
+- The result shows that going out frequency, sex, number of absences, and time spent studying are all significant predictors of student's alcohol use.
+- Students with higher score of going out are 2.06 times more likely to have high alcohol consumption, with the 95% confidence interval between 1.64-2.63 times more likely. This is in line with the original hypothesis.
+- Male students are 2.3 times more likely to have higher alcohol consumption than female students, with the 95% confidence interval between 1.37-3.96 times more likely. This is in line with the original hypothesis.
+- Students with higher absences are 1.08 times more likely to have higher alcohol consumption, with the 95% confidence interval between 1.03-1.13 times more likely. Although this variable is highly significant, its odds ratio is not as extreme as it is a numeric variable with a high range of values, and the odds ratio is comparing the n vs n-1 value of the variable, which is only slightly different. In another word, students with n number of absences are 1.08 times more likely to have high alcohol consumption compared to students with n-1 number of absences. This is in line with the original hypothesis.
+- Students who spend more time studying are 0.65 times more likely to have high alcohol consumption, with the 95% confidence interval between 0.46-0.90. As the odds ratio is less than 1, it can also be interpreted as: students who spends more time studying are 1.54 (1/0.65) times less likely to have high alcohol consumption. This is inline with the original hypothesis. 
+
+
+```{r}
+# predict() the probability of high_use
+probabilities <- predict(m, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probability > 0.5)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+
+# define the geom as points and draw the plot
+g + geom_point()
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table %>% addmargins
+
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = alc$high_use, prob = alc$probability)
+```
+
+- Only around 20.8% individuals are classified inaccurately, which means that the prediction of this model is a lot better than simple guessing strategy.
+- The proportion of incorrect prediction seems to be higher in high alcohol use group, which may be because the characteristics of individuals with high alcohol use is more diverse.
+
+
+```{r}
+# compute the average number of wrong predictions in the (training) data
+loss_func(class= alc$high_use, prob= alc$probability)
+
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+- This model has 0.203 error rate, which is lower than DataCamp's model which was 0.26. This means that this model has better set test performance.
+
+
+```{r}
+#*running logistic regression with the all possible variables*
+m1 <- glm(high_use ~ school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + reason + guardian + traveltime + studytime + failures + schoolsup + famsup + paid + activities + nursery + higher + internet + romantic + famrel + freetime + goout + health + absences, data=alc, family="binomial")
+summary(m1)
+
+# predict() the probability of high_use
+probabilities <- predict(m1, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability1 = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction1 = probability > 0.5)
+
+# compute the average number of wrong predictions in the (training) data
+loss_func(class= alc$high_use, prob= alc$probability1)
+
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m1, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+
+- Only sex, reasontoher, guardianmother, famrel, goout, and absences are shown to be significant.
+- The training data has 0.19 error rate, which is quite low, but the error rate from the cross validation is quite high at 0.267
+
+
+```{r}
+#*running logistic regression with the significant variables*
+m2 <- glm(high_use ~ sex + reason + guardian + famrel + goout + absences, data=alc, family="binomial")
+summary(m2)
+
+# predict() the probability of high_use
+probabilities <- predict(m2, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability2 = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction2 = probability > 0.5)
+
+# compute the average number of wrong predictions in the (training) data
+loss_func(class= alc$high_use, prob= alc$probability2)
+
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+- Sex, reasonother, famrel, goout, and absences are shown to be significant.
+- The training error rate is 0.222, and the testing error rate is 0.238, which improved compared to the last model.
+
+
+```{r}
+#*running logistic regression with the significant variables*
+m3 <- glm(high_use ~ sex + reason + famrel + goout + absences, data=alc, family="binomial")
+summary(m3)
+
+# predict() the probability of high_use
+probabilities <- predict(m3, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability3 = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction3 = probability > 0.5)
+
+# compute the average number of wrong predictions in the (training) data
+loss_func(class= alc$high_use, prob= alc$probability3)
+
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m3, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+- Sex, reasonother, famrel, goout, and absences are found to be significant.
+- The training error rate is 0.194 while the testing error rate is 0.208, lower than the last model.
+
+
+```{r}
+#drawing a graph of training and testing errors in all 4 models.
+comp <- data.frame(models = c("m1", "m1", "m2", "m2", "m3", "m3", "m4", "m4"),
+                   type = c("training", "testing", "training", "testing", "training", "testing", "training", "testing"),
+                   error = c(0.1945946, 0.2675676, 0.2216216, 0.2378378, 0.1945946, 0.2081081, 0.2081081, 0.2027027))
+
+ggplot(data=comp, aes(x=models, y=error, group=type, label=error, col=type)) +
+  geom_path(linetype="longdash", size=1.5)+
+  geom_point(size=5)+
+  geom_text(nudge_y = 0.005, color= "black")
+
+```
+
+- As the number of predictor decreases, testing error gets lower. The model with the lowest number of predictor has the best testing error rate.
+- Meanwhile, training error rate fluctuates. The number of predictor does not seem to have any relationship with the training error rate.
+
+

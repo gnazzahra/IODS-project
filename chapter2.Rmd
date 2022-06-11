@@ -1,5 +1,4 @@
 # 2: Regression and Model Validation
-
 ```{r}
 date()
 ```

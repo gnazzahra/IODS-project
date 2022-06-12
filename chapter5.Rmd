@@ -1,0 +1,105 @@
+# 5: Dimensionality Reduction Techniques
+```{r}
+date()
+```
+*This week I am learning about dimensionality reduction techniques. I have done the data wrangling part and now I will do the analysis excercise.*
+
+
+```{r}
+#reading the data
+human <- read.csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", header=TRUE)
+summary(human)
+
+# Access GGally
+library(GGally)
+
+# visualize the variables
+ggpairs(human)
+
+# compute the correlation matrix and visualize it with corrplot
+cor(human) %>% corrplot
+
+```
+
+- GNI, maternal mortality rate, and adolescent birth rate seem to have very highly skewed distribution. In gerenal, the variables do not seem to follow normal distribution.
+- The ratio of female to male proportion with at least secondary level of education seem to have positive correlation to expected years of schooling, life expectancy at birth, and GNI, while having negative correlation with maternal mortality rate and adolescent birth rate.
+- Expected years of schooling seem to have positive correlation with life expectancy at birth and GNI, while having negative correlation to maternal mortality rate and adolescent birth rate.
+- Life expectancy at birth seem to have positive correlation to GNI, and negative correlation to maternal mortality rate and adolescent birth rate. 
+- GNI has a negative correlation to maternal mortality rate and adolescent birth rate.
+- Maternal mortality rate has a positive correlation to adolescent birth rate.
+
+
+```{r}
+# perform principal component analysis to the unstandardized data
+pca_human <- prcomp(human)
+
+#summary of the pca
+s <- summary(pca_human)
+s
+pca_pr1 <- round(100*s$importance[2,], digits = 1)
+pca_pr1
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human, choices = 1:2, cex = c(0.8,1), col = c("grey40", "deeppink2"))
+
+```
+
+- With the unstandardized data, 100% of the variability has been captured by the PC1, with the GNI as the main dividing variable. This may be because GNI variable, compared to all other variables, has a very wide range that includes very large numbers. 
+
+```{r}
+#standardizing data
+human_std <- scale(human)
+summary(human_std)
+
+# perform principal component analysis to the standardized data
+pca_human_std <- prcomp(human_std)
+
+#summary of the pca
+s_std <- summary(pca_human_std)
+s_std
+pca_pr2 <- round(100*s_std$importance[2,], digits = 1)
+pca_pr2
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human_std, choices = 1:2, cex = c(0.3,0.6), col = c("grey40", "deeppink2"))
+
+```
+
+- With the standardized data, PC1 captures 53.6% of the variability, while PC2 captures 16.2%, PC3 capture 9.6%, PC4 captures 7.6%, PC5 capture 5.5%, PC6 captures 3.6%, PC7 captures 2.6%, and PC8 captures 1.3%. 
+- This result is very different compared to the result from the unstandardized data, as now as it had been standardized, every variable has comparable variances. No variables can unproportionally affect the variability just because it naturally has much higher variability compared to other variables. 
+- The variables that are the main contributor of the variability in PC1 are maternal mortality rate, adolescent birth rate, expected years of schooling, the ratio of female and male proportion with at least secondary level of education, GNI, and life expectancy at birth. Maternal mortality rate and adolescent birth rate affect the variability to the opposite side compared to the rest of the variables. Low female education, high adolescent birth rate, and maternal mortality are related with each other, as women who could not continue their education would tend to marry earlier (this relationship works both ways, women who were married early tend to not continue their education). Adolescent birth would lead to more maternal mortality, as the body of an adolescent are highly more to be unprepared for pregnancy and birth. Less educated, younger mothers are also more likely to lack the needed experience, support, and knowledge to face pregnancy and labor safely, causing more problematic pregnancy and birth experience. 
+
+
+```{r}
+install.packages("FactoMineR", repos="https://cloud.r-project.org/")
+
+library(FactoMineR); library(dplyr); library(ggplot2); library(tidyr)
+data(tea)
+
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- dplyr::select(tea, one_of(keep_columns))
+
+# look at the summaries and structure of the data
+summary(tea_time)
+str(tea_time)
+
+# visualize the dataset
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+
+```{r}
+# multiple correspondence analysis
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+```
+
+- The MCA factor map shows the measure of similarity between variables. In this data, chain store and tea bag seem to have high degree of similarity. People who buy their tea from  the tea shop drink mainly drink unpackaged tea, and people who buy their thea from chain stores mainly have bagged tea.

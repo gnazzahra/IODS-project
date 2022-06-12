@@ -25,3 +25,48 @@ dim(human)
 
 #write dataset
 write.csv(human, file = "human.csv")
+
+#read dataset
+human <- read.csv("~/IODS-project/data/human.csv", header=TRUE)
+dim(human)
+str(human)
+#- This data describes variables related to Human Development Index and Gender Inequality Index in various countries.
+#- The variable X is the row names describing the country to which the data relates to.
+#- edu2R is the ratio between proportion of females and males with at least secondary level of education. 
+#- lprR is the ratio between proportion of females and males in the labor force.
+#- eye: Expected Year of Education
+#- leb: Life Expectancy at Birth
+#- gni: Gross National Income 
+#- mmr: Maternal Mortality Rate
+#- abr: Adolescent Brith Rate
+#- prp: persentage of female representatives in the parliament
+
+#defining columns to keep
+keep_columns <- c("Country", "edu2R", "lprR", "eye", "leb", "gni", "mmr", "abr", "prp")
+
+# select the 'keep_columns' to modify dataset
+human <- dplyr::select(human, one_of(keep_columns))
+
+# print out a completeness indicator of the 'human' data
+complete.cases(human)
+
+# print out the data along with a completeness indicator as the last column
+data.frame(human[-1], comp = complete.cases(human))
+
+# filter out all rows with NA values
+human <- filter(human, complete.cases(human))
+
+# last indice we want to keep
+last <- nrow(human) - 7
+
+# choose everything until the last 7 observations
+human <- human[1:last, ]
+
+# add countries as rownames
+rownames(human) <- human$Country
+
+# remove the Country variable
+human <- dplyr::select(human, -Country)
+
+#write dataset
+write.csv(human, file = "~/IODS-project/data/human.csv")
